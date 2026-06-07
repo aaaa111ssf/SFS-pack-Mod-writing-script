@@ -1,12 +1,12 @@
 # SFS-pack模组写入脚本
 基于unitypy的SFS.pack写入脚本 主要用于汉化模组
-怎么使用
+①怎么使用
 1.安装unitypy
 2.cmd窗口运行
-所需文件
+②所需文件〈与脚本处于同一目录〉
 1.mod.pack
 2.texts_to_translated_zh.json
-输出文件
+③输出文件
 mod_CN.pack
 texts_to_translated_zh.json格式
 "-9177355032084777435": {

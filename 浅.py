@@ -289,22 +289,33 @@ def write():
                 replace_node(tree)
 
                 if modified:
-                    try:
-                        obj.dump_typetree(tree)
-                        modified_count += 1
-                    except:
-                        pass
+                    obj.save_typetree(tree)          # v17 方式
+                    modified_count += 1
             except:
                 continue
 
         if modified_count > 0:
             print(f"    修改了 {modified_count} 个对象")
             try:
-                updated_binary = env.file.save(packer='lzma')
-                data[build_key] = base64.b64encode(updated_binary).decode('utf-8')
-                print(f"    保存成功")
-            except Exception as e:
-                print(f"    保存失败: {e}")
+                # v17 临时目录 + pack='lzma' 方式
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    env.save(pack='lzma', out_path=tmpdir)
+                    saved_files = os.listdir(tmpdir)
+                    if saved_files:
+                        with open(os.path.join(tmpdir, saved_files[0]), 'rb') as f_bundle:
+                            updated_binary = f_bundle.read()
+                        data[build_key] = base64.b64encode(updated_binary).decode('utf-8')
+                        print(f"    保存成功 ({len(updated_binary)} 字节)")
+                    else:
+                        raise Exception("临时目录为空")
+            except:
+                # 回退方案
+                try:
+                    updated_binary = env.file.save(packer='lzma')
+                    data[build_key] = base64.b64encode(updated_binary).decode('utf-8')
+                    print(f"    回退保存成功")
+                except Exception as e:
+                    print(f"    保存失败: {e}")
         else:
             print(f"    未找到可修改的文本")
 

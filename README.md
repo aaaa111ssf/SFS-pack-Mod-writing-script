@@ -1,30 +1,42 @@
-##SFS-pack模组写入脚本
-基于unitypy的SFS.pack写入脚本 主要用于汉化模组
-①怎么使用
-1.安装unitypy
-2.cmd窗口运行
-②所需文件〈与脚本处于同一目录〉
-1.mod.pack
-2.texts_to_translated_zh.json
-③输出文件
-mod_CN.pack
-texts_to_translated_zh.json格式
-"-9177355032084777435": {
-    "Height": "高度",
-    "Width": "宽度",
-    "Angle": "角度",
-    "X Size": "X尺寸",
-    "Y Size": "Y尺寸",
-    "Angle Smooth": "角度微调",
-    "X Size Smooth": "X尺寸微调",
-    "Y Size Smooth": "Y尺寸微调",
-    "Width Smooth": "宽度微调",
-    "Height Smooth": "高度微调",
+# SFS-pack 模组汉化脚本  
+基于 UnityPy 的 SFS.pack 写入脚本，主要用于汉化模组。  
+
+# 使用方法  
+安装 UnityPy  
+pip install UnityPy    
+在 cmd 窗口运行脚本  
+
+将脚本与所需文件放在同一目录下，执行：  
+
+python 脚本名.py  
+所需文件（与脚本位于同一目录）  
+mod.pack —— 原始模组 pack 文件  
+texts_to_translated_zh.json —— 待翻译的文本 JSON 文件（格式见下方）  
+输出文件  
+mod_CN.pack —— 汉化后的 pack 文件  
+（原始 JSON 文件保持不变，无需修改）  
+# texts_to_translated_zh.json 格式示例  
+Json  
+{  
+  "-9177355032084777435": {  
+    "Height": "高度",  
+    "Width": "宽度",  
+    "Angle": "角度",  
+    "X Size": "X尺寸",  
+    "Y Size": "Y尺寸",  
+    "Angle Smooth": "角度微调",  
+    "X Size Smooth": "X尺寸微调",  
+    "Y Size Smooth": "Y尺寸微调",  
+    "Width Smooth": "宽度微调",  
+    "Height Smooth": "高度微调",  
     "Layer": "层级",
-    "Depth": "深度"
-}
-##！！！！！必看！！！！！
-目前v18存在提取文本过多的问题 请挨个核对翻译 否则会导致部件无法使用
-浅存在写入问题 提取过少等问题
-建议：浅和v18搭配使用 即v18写入 浅提取 若有漏的文字可以v18识别或者是手打(注意与游戏显示文本相同一个都不能少)
-联系方式QQ2107478976
+    "Depth": "深度"  
+  }  
+}  
+# ⚠️ 重要注意事项  
+问题	说明
+v18 提取文本过多	当前 v18 版本存在提取文本过多的问题，请挨个核对翻译，否则会导致部件无法使用。  
+浅版本问题	“浅”版本存在写入问题、提取过少等问题。  
+建议搭配使用	建议将浅版本与 v18 搭配使用：v18 负责写入，浅版本负责提取。若有漏掉的文本，可以使用 v18 识别或手动添加（注意：必须与游戏显示文本完全相同，一个字都不能少）。  
+# 联系方式  
+如有问题或反馈，请联系 QQ：2107478976

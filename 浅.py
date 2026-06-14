@@ -236,9 +236,11 @@ def write():
 
     with open(INPUT_FILE, 'r', encoding='utf-8-sig') as f:
         data = json.load(f)
+
     with open(TRANSLATED_FILE, 'r', encoding='utf-8') as f:
         translations = json.load(f)
 
+    # 只替换真正发生翻译的内容
     active_translations = {k: v for k, v in translations.items() if k != v}
     print(f"    共 {len(active_translations)} 条需要替换")
 
@@ -254,6 +256,7 @@ def write():
         for obj in env.objects:
             if obj.type.name != "MonoBehaviour":
                 continue
+
             try:
                 tree = obj.read_typetree()
                 if tree is None:
@@ -263,61 +266,73 @@ def write():
 
                 def replace_node(node, path=""):
                     nonlocal modified
+
                     if isinstance(node, dict):
                         for k, v in list(node.items()):
                             child_path = f"{path}.{k}" if path else k
+
+                            # 作者标记
                             if k == 'Author' and isinstance(v, str):
                                 if AUTHOR_SUFFIX not in v:
                                     node[k] = v + AUTHOR_SUFFIX
                                     modified = True
+
                             elif isinstance(v, str):
                                 if is_path_safe(child_path) and v in active_translations:
                                     node[k] = active_translations[v]
                                     modified = True
+
                             elif isinstance(v, (dict, list)):
                                 replace_node(v, child_path)
+
                     elif isinstance(node, list):
                         for i, v in enumerate(node):
                             child_path = f"{path}[{i}]"
+
                             if isinstance(v, str):
                                 if is_path_safe(child_path) and v in active_translations:
                                     node[i] = active_translations[v]
                                     modified = True
+
                             elif isinstance(v, (dict, list)):
                                 replace_node(v, child_path)
 
                 replace_node(tree)
 
                 if modified:
-                    obj.save_typetree(tree)          # v17 方式
+                    obj.save_typetree(tree)
                     modified_count += 1
+
             except:
                 continue
 
         if modified_count > 0:
             print(f"    修改了 {modified_count} 个对象")
+
             try:
-                # v17 临时目录 + pack='lzma' 方式
                 with tempfile.TemporaryDirectory() as tmpdir:
                     env.save(pack='lzma', out_path=tmpdir)
+
                     saved_files = os.listdir(tmpdir)
                     if saved_files:
-                        with open(os.path.join(tmpdir, saved_files[0]), 'rb') as f_bundle:
-                            updated_binary = f_bundle.read()
+                        with open(os.path.join(tmpdir, saved_files[0]), 'rb') as f:
+                            updated_binary = f.read()
+
                         data[build_key] = base64.b64encode(updated_binary).decode('utf-8')
                         print(f"    保存成功 ({len(updated_binary)} 字节)")
                     else:
-                        raise Exception("临时目录为空")
-            except:
-                # 回退方案
+                        raise Exception("空输出目录")
+
+            except Exception as e:
+                # fallback
                 try:
                     updated_binary = env.file.save(packer='lzma')
                     data[build_key] = base64.b64encode(updated_binary).decode('utf-8')
-                    print(f"    回退保存成功")
+                    print("    回退保存成功")
                 except Exception as e:
                     print(f"    保存失败: {e}")
         else:
-            print(f"    未找到可修改的文本")
+            print("    未找到可修改文本")
 
     with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, separators=(',', ':'))
